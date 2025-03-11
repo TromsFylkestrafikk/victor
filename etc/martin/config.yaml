@@ -1,0 +1,29 @@
+# Connection keep alive timeout [default: 75]
+keep_alive: 75
+
+# The socket address to bind [default: 0.0.0.0:3000]
+listen_addresses: 'localhost:3000'
+
+# Number of web server workers
+worker_processes: 8
+
+# Amount of memory (in MB) to use for caching tiles [default: 512, 0 to disable]
+cache_size_mb: 512
+
+mbtiles:
+    paths:
+        - /home/kaare/maps/norway-tilemaker.mbtiles
+
+sprites:
+    sources:
+        osm-bright: /home/kaare/src/victor/public/styles/osm-bright/icons
+        fiord: /home/kaare/src/victor/public/styles/fiord/icons
+        dark-matter: /home/kaare/src/victor/public/styles/dark-matter/icons
+        positron: /home/kaare/src/victor/public/styles/positron/icons
+
+fonts:
+    - /home/kaare/src/victor/fonts/noto-sans/NotoSans-Bold.ttf
+    - /home/kaare/src/victor/fonts/noto-sans/NotoSans-Italic.ttf
+    - /home/kaare/src/victor/fonts/noto-sans/NotoSans-Regular.ttf
+    - /home/kaare/src/victor/fonts/metropolis/
+
