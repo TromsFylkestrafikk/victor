@@ -24,11 +24,11 @@
   "sources": {
     "openmaptiles": {
       "type": "vector",
-      "url": "http://victor.local/tiles/norway-tilemaker"
+      "url": "https://victor2.tftservice.no/tiles/norway-tilemaker"
     }
   },
-  "sprite": "http://victor.local/tiles/sprite/osm-bright",
-  "glyphs": "http://victor.local/tiles/font/{fontstack}/{range}",
+  "sprite": "https://victor2.tftservice.no/tiles/sprite/osm-bright",
+  "glyphs": "https://victor2.tftservice.no/tiles/font/{fontstack}/{range}",
   "layers": [
     {
       "id": "background",

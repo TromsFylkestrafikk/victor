@@ -12,18 +12,18 @@ cache_size_mb: 512
 
 mbtiles:
     paths:
-        - /home/kaare/maps/norway-tilemaker.mbtiles
+        - /var/www/victor/tiles/norway-tilemaker.mbtiles
 
 sprites:
     sources:
-        osm-bright: /home/kaare/src/victor/public/styles/osm-bright/icons
-        fiord: /home/kaare/src/victor/public/styles/fiord/icons
-        dark-matter: /home/kaare/src/victor/public/styles/dark-matter/icons
-        positron: /home/kaare/src/victor/public/styles/positron/icons
+        osm-bright: /var/www/victor/public/styles/osm-bright/icons
+        fiord: /var/www/victor/public/styles/fiord/icons
+        dark-matter: /var/www/victor/public/styles/dark-matter/icons
+        positron: /var/www/victor/public/styles/positron/icons
 
 fonts:
-    - /home/kaare/src/victor/fonts/noto-sans/NotoSans-Bold.ttf
-    - /home/kaare/src/victor/fonts/noto-sans/NotoSans-Italic.ttf
-    - /home/kaare/src/victor/fonts/noto-sans/NotoSans-Regular.ttf
-    - /home/kaare/src/victor/fonts/metropolis/
+    - /var/www/victor/fonts/noto-sans/NotoSans-Bold.ttf
+    - /var/www/victor/fonts/noto-sans/NotoSans-Italic.ttf
+    - /var/www/victor/fonts/noto-sans/NotoSans-Regular.ttf
+    - /var/www/victor/fonts/metropolis/
 
