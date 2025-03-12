@@ -68,8 +68,8 @@ function download {
 
     echo -n "Downloading OSM data for $AREA "
     if [ ! -r $PBF ] || [ $(($(date +%s) - $(date -r $PBF +%s))) -gt 86000 ]; then
-        curl -Ssf --output $PBF $PBF_URL
         echo -n " ... "
+        curl -Ssf --output $PBF $PBF_URL
     fi
     echo "OK"
 
