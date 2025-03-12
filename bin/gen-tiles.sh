@@ -67,7 +67,7 @@ function download {
     mkdir -p $DIR_VICTOR/tilemaker/osm
 
     echo -n "Downloading OSM data for $AREA "
-    if [ ! -f $PBF -o $(($(date +%s) - $(date -r $PBF +%s))) -gt 86000 ]; then
+    if [ ! -r $PBF ] || [ $(($(date +%s) - $(date -r $PBF +%s))) -gt 86000 ]; then
         curl -Ssf --output $PBF $PBF_URL
         echo -n " ... "
     fi
@@ -92,6 +92,7 @@ function gen_tiles {
     tilemaker --input $PBF \
               --output $MBTILES \
               --bbox -180,-85,180,85 \
+              --store /tmp \
               --config $resources/config-coastline.json \
               --process $resources/process-coastline.lua
     echo "done"
@@ -100,6 +101,7 @@ function gen_tiles {
     tilemaker --input $PBF \
               --output $MBTILES \
               --merge \
+              --store /tmp \
               --process $resources/process-openmaptiles.lua \
               --config $resources/config-openmaptiles.json
     popd > /dev/null
