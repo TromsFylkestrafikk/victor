@@ -11,6 +11,7 @@ fi
 
 AREA=$(basename ${PBF_URL##*/} .osm.pbf)
 PBF=$DIR_VICTOR/tilemaker/osm/$AREA.osm.pbf
+MBTILES=$DIR_VICTOR/tiles/$AREA.mbtiles
 
 function download {
     pushd $DIR_VICTOR/tilemaker > /dev/null
@@ -38,7 +39,29 @@ function download {
 }
 
 function gen_tiles {
+    pushd $DIR_VICTOR/tilemaker > /dev/null
     echo -n "Generating world-wide coastlines and landcover ..."
+    if ! which tilemaker > /dev/null; then
+        echo "\ntilemaker executable not found. Install and continue" > /dev/stderr
+        exit
+    fi
+    rm -f $MBTILES
+    resources=$DIR_VICTOR/tilemaker/resources
+    tilemaker --input $PBF \
+              --output $MBTILES \
+              --bbox -180,-85,180,85 \
+              --config $resources/config-coastline.json \
+              --process $resources/process-coastline.lua
+    echo "done"
+
+    echo -n "Adding $AREA to tiles ..."
+    tilemaker --input $PBF \
+              --output $MBTILES \
+              --merge \
+              --process $resources/process-openmaptiles.lua \
+              --config $resources/config-openmaptiles.json
+    popd > /dev/null
+    echo "done"
 }
 
 download
