@@ -1,6 +1,6 @@
 #!/bin/bash
 
-DIR_VICTOR=$(realpath $(dirname $(dirname $0)))
+DIR_VICTOR=$(dirname $(dirname $(realpath $0)))
 PBF_URL=https://download.geofabrik.de/europe/norway-latest.osm.pbf
 
 function usage {
@@ -49,8 +49,11 @@ if [[ $PBF = "" ]]; then
     PBF=$DIR_VICTOR/tilemaker/osm/$AREA.osm.pbf
 fi
 MBTILES=$DIR_VICTOR/tiles/$AREA.mbtiles
-echo $PBF
-exit
+echo "Victor dir:       $DIR_VICTOR"
+echo "Downloading from: $PBF_URL"
+echo "Saving to:        $PBF"
+echo "Writing tiles to: $MBTILES"
+echo "Lets go!"
 
 function download {
     pushd $DIR_VICTOR/tilemaker > /dev/null
@@ -65,7 +68,7 @@ function download {
 
     echo -n "Downloading OSM data for $AREA "
     if [ ! -f $PBF -o $(($(date +%s) - $(date -r $PBF +%s))) -gt 86000 ]; then
-        #curl -Ssf --output $PBF $PBF_URL
+        curl -Ssf --output $PBF $PBF_URL
         echo -n " ... "
     fi
     echo "OK"
@@ -86,7 +89,8 @@ function gen_tiles {
     fi
     rm -f $MBTILES
     resources=$DIR_VICTOR/tilemaker/resources
-    tilemaker --output $MBTILES \
+    tilemaker --input $PBF \
+              --output $MBTILES \
               --bbox -180,-85,180,85 \
               --config $resources/config-coastline.json \
               --process $resources/process-coastline.lua
