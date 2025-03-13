@@ -1,6 +1,7 @@
 #!/bin/bash
 
 DIR_VICTOR=$(dirname $(dirname $(realpath $0)))
+RESOURCES=$DIR_VICTOR/tilemaker/resources
 PBF_URL=https://download.geofabrik.de/europe/norway-latest.osm.pbf
 MBTILES_WORLD=$DIR_VICTOR/tiles/world_coastlines.mbtiles
 
@@ -105,13 +106,12 @@ function make_world {
     echo "--- BEGIN generating world-wide coastlines and landcover ..."
     echo "Generating world mbtiles to $MBTILES_WORLD"
     pushd $DIR_VICTOR/tilemaker > /dev/null
-    local resources=$DIR_VICTOR/tilemaker/resources
     tilemaker --input $PBF_DEST \
               --output $MBTILES_WORLD \
               --bbox -180,-85,180,85 \
               --store /tmp \
-              --config $resources/config-coastline.json \
-              --process $resources/process-coastline.lua
+              --config $RESOURCES/config-coastline.json \
+              --process $RESOURCES/process-coastline.lua
     popd > /dev/null
     echo "--- END generating world-wide coastlines and landcover ..."
 }
@@ -126,12 +126,12 @@ function gen_tiles {
     local PBF_FILE=$(basename $PBF .osm.pbf)
     echo "--- BEGIN generating tiles for $PBF_FILE"
     pushd $DIR_VICTOR/tilemaker > /dev/null
-    echo tilemaker --input $PBF \
+    tilemaker --input $PBF \
               --output $MBTILES \
               --merge \
               --store /tmp \
-              --process $resources/process-openmaptiles.lua \
-              --config $resources/config-openmaptiles.json
+              --process $RESOURCES/process-openmaptiles.lua \
+              --config $RESOURCES/config-openmaptiles.json
     popd > /dev/null
     echo "--- END generating tiles for $PBF_FILE"
 }
