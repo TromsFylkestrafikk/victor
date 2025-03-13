@@ -1,8 +1,13 @@
 #!/bin/bash
 
+# Don't update unless destination mbtiles is younger than this many seconds.
+let MIN_AGE=604800
+
+# Default map source unless given as parameter.
+PBF_URL=https://download.geofabrik.de/europe/norway-latest.osm.pbf
+
 DIR_VICTOR=$(dirname $(dirname $(realpath $0)))
 RESOURCES=$DIR_VICTOR/tilemaker/resources
-PBF_URL=https://download.geofabrik.de/europe/norway-latest.osm.pbf
 PBF_URLS=$PBF_URL
 MBTILES_WORLD=$DIR_VICTOR/tiles/world_coastlines.mbtiles
 
@@ -18,20 +23,23 @@ specified with the -m option, which then is required.
 
 OPTIONS
     -h                  This help.
+    -f                  Force generation of mbtiles. Repeat to force download
+                        of source PBFs.
     -m TILE_FILE        Basename of destination mbtiles file. It will end up in
                         tiles/<MBTILE>.mbtiles.
 "
 }
 
 MBTILES=""
+let FORCE=0
 
-while getopts "hm:" option; do
+while getopts "fhm:" option; do
     case $option in
+        f) FORCE=$((FORCE + 1)) ;;
         h) usage
            exit
            ;;
-        m) MBTILES=$OPTARG
-           ;;
+        m) MBTILES=$OPTARG ;;
         *) usage
            exit
            ;;
@@ -67,6 +75,14 @@ function init {
         echo "tilemaker executable not found. Install and continue" > /dev/stderr
         exit
     fi
+
+    if [[ $FORCE -lt 1 ]] &&
+       [[ -f $MBTILES ]] &&
+       [[ $(($(date +%s) - $(date -r $MBTILES +%s))) -lt $MIN_AGE ]]
+    then
+        echo "Destination mbtiles is of recent age. Leaving."
+        exit
+    fi
 }
 
 function download_world_data {
@@ -87,10 +103,16 @@ function download_pbf {
     local AREA=$(basename $PBF_DEST .osm.pbf)
 
     # If osm data doesn't exist or is outdated, download it.
-    if [ ! -r $PBF_DEST ] || [ $(($(date +%s) - $(date -r $PBF_DEST +%s))) -gt 604800 ]; then
+    if [[ $FORCE -gt 1 ]] ||
+       [[ ! -r $PBF_DEST ]] ||
+       [[ $(($(date +%s) - $(date -r $PBF_DEST +%s))) -gt $MIN_AGE ]]
+    then
         echo "--- BEGIN osm download for $AREA"
+        rm -f $PBF_DEST
         curl -Ssf --output $PBF_DEST $PBF_URL
         echo "--- END osm download for $AREA"
+    else
+        echo "Not downloading PBF of $AREA: File exists and is recent."
     fi
 
     if [[ ! -f $PBF_DEST ]]; then
@@ -105,7 +127,7 @@ function make_world {
     fi
     download_world_data
     download_pbf $1
-    echo "--- BEGIN generating world-wide coastlines and landcover ..."
+    echo "--- BEGIN generating world-wide coastlines and landcover"
     echo "Generating world mbtiles to $MBTILES_WORLD"
     pushd $DIR_VICTOR/tilemaker > /dev/null
     tilemaker --input $PBF_DEST \
@@ -115,7 +137,7 @@ function make_world {
               --config $RESOURCES/config-coastline.json \
               --process $RESOURCES/process-coastline.lua
     popd > /dev/null
-    echo "--- END generating world-wide coastlines and landcover ..."
+    echo "--- END generating world-wide coastlines and landcover"
 }
 
 function prepare_mbtiles {
