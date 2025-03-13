@@ -3,6 +3,7 @@
 DIR_VICTOR=$(dirname $(dirname $(realpath $0)))
 RESOURCES=$DIR_VICTOR/tilemaker/resources
 PBF_URL=https://download.geofabrik.de/europe/norway-latest.osm.pbf
+PBF_URLS=$PBF_URL
 MBTILES_WORLD=$DIR_VICTOR/tiles/world_coastlines.mbtiles
 
 function usage {
@@ -45,6 +46,7 @@ fi
 
 if [[ ! -z $1 ]]; then
     PBF_URL=$1
+    PBF_URLS=$*
 fi
 
 AREA=$(basename ${PBF_URL##*/} .osm.pbf)
@@ -56,7 +58,7 @@ else
 fi
 
 echo "Victor dir:       $DIR_VICTOR"
-echo "Downloading from: $PBF_URL"
+echo "First PBF URL:    $PBF_URL"
 echo "Writing tiles to: $MBTILES"
 echo
 
@@ -123,8 +125,8 @@ function prepare_mbtiles {
 
 function gen_tiles {
     local PBF=$1
-    local PBF_FILE=$(basename $PBF .osm.pbf)
-    echo "--- BEGIN generating tiles for $PBF_FILE"
+    local PBF_FILE=$(basename $PBF)
+    echo "--- BEGIN generating tiles from $PBF_FILE"
     pushd $DIR_VICTOR/tilemaker > /dev/null
     tilemaker --input $PBF \
               --output $MBTILES \
@@ -145,6 +147,6 @@ function process_pbfs {
 }
 
 init
-make_world ${1:-$PBF_URL}
+make_world $PBF_URL
 prepare_mbtiles
-process_pbfs ${PBF_URL:-$*}
+process_pbfs $PBF_URLS
