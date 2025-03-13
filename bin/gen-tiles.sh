@@ -52,7 +52,6 @@ if [[ ${PBF_URL: -8} != '.osm.pbf' ]]; then
 fi
 
 AREA=$(basename ${PBF_URL##*/} .osm.pbf)
-PBF=$DIR_VICTOR/tilemaker/osm/$AREA.osm.pbf
 
 if [[ $MBTILES = "" ]]; then
     MBTILES=$DIR_VICTOR/tiles/$AREA.mbtiles
@@ -61,7 +60,6 @@ else
 fi
 echo "Victor dir:       $DIR_VICTOR"
 echo "Downloading from: $PBF_URL"
-echo "Saving to:        $PBF"
 echo "Writing tiles to: $MBTILES"
 echo "Lets go!"
 
@@ -81,21 +79,6 @@ function download_world_data {
     echo "--- END landcover download"
 }
 
-function download_pbf {
-    PBF_URL=$1
-    echo "--- BEGIN osm download for $AREA"
-    # If osm data doesn't exist or is outdated, download it.
-    if [ ! -r $PBF ] || [ $(($(date +%s) - $(date -r $PBF +%s))) -gt 604800 ]; then
-        curl -Ssf --output $PBF $PBF_URL
-    fi
-
-    if [[ ! -f $PBF ]]; then
-        echo "Download of OSM data from '$PBF_URL' to destination '$PBF' failed" > /dev/stderr
-        exit
-    fi
-    echo "--- END osm download for $AREA"
-}
-
 function make_world {
     if [[ -f $MBTILES_WORLD ]]; then
         return
@@ -104,7 +87,7 @@ function make_world {
     echo "--- BEGIN generating world-wide coastlines and landcover ..."
     pushd $DIR_VICTOR/tilemaker > /dev/null
     resources=$DIR_VICTOR/tilemaker/resources
-    echo tilemaker --input $PBF \
+    tilemaker --input $PBF \
               --output $MBTILES_WORLD \
               --bbox -180,-85,180,85 \
               --store /tmp \
@@ -115,26 +98,49 @@ function make_world {
 }
 
 function prepare_mbtiles {
-    echo rm -f $MBTILES
-    echo cp -vp $MBTILES_WORLD $MBTILES
+    rm -f $MBTILES
+    cp -vp $MBTILES_WORLD $MBTILES
+}
+
+function download_pbf {
+    PBF_URL=$1
+    PBF=$2
+    AREA=$(basename $PBF .osm.pbf)
+
+    # If osm data doesn't exist or is outdated, download it.
+    if [ ! -r $PBF ] || [ $(($(date +%s) - $(date -r $PBF +%s))) -gt 604800 ]; then
+        echo "--- BEGIN osm download for $AREA"
+        curl -Ssf --output $PBF $PBF_URL
+        echo "--- END osm download for $AREA"
+    fi
+
+    if [[ ! -f $PBF ]]; then
+        echo "Download of OSM data from '$PBF_URL' to destination '$PBF' failed" > /dev/stderr
+        exit
+    fi
 }
 
 function gen_tiles {
-    echo "--- BEGIN generating tiles for $AREA"
+    PBF=$1
+    PBF_FILE=$(basename $PBF .osm.pbf)
+    echo "--- BEGIN generating tiles for $PBF_FILE"
     pushd $DIR_VICTOR/tilemaker > /dev/null
-    echo tilemaker --input $PBF \
+    tilemaker --input $PBF \
               --output $MBTILES \
               --merge \
               --store /tmp \
               --process $resources/process-openmaptiles.lua \
               --config $resources/config-openmaptiles.json
     popd > /dev/null
-    echo "--- END generating tiles for $AREA"
+    echo "--- END generating tiles for $PBF_FILE"
 }
 
 function process_pbfs {
     while [[ $# -gt 0 ]]; do
-        echo $1
+        PBF_URL=$1
+        PBF=$DIR_VICTOR/tilemaker/osm/${PBF_URL##*/}
+        download_pbf $PBF_URL $PBF
+        gen_tiles $PBF
         shift
     done
 }
@@ -142,4 +148,4 @@ function process_pbfs {
 init
 make_world
 prepare_mbtiles
-process_pbfs $*
+process_pbfs ${PBF_URL:-$*}
