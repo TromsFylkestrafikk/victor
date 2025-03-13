@@ -13,19 +13,19 @@ PBF_URL is a url containing a osm.pbf dump, usually from geofabrik.de.
 Defaults is $PBF_URL
 
 OPTIONS
-    -h          This help
-    -o OUTPUT   Destination of .mbtiles file. Default destination is in the
-                tiles folder.
+    -h                  This help.
+    -m TILE_FILE        Basename of destination mbtiles file. It will end up in
+                        tiles/<MBTILE>.mbtiles.
 "
 }
 
-PBF=""
-while getopts "ho:" option; do
+MBTILES=""
+while getopts "hm:" option; do
     case $option in
         h) usage
            exit
            ;;
-        o) PBF=$OPTARG
+        m) MBTILES=$OPTARG
            ;;
         *) usage
            exit
@@ -33,7 +33,6 @@ while getopts "ho:" option; do
     esac
 done
 shift $(($OPTIND - 1))
-
 
 if [[ ! -z $1 ]]; then
     PBF_URL=$1
@@ -45,10 +44,12 @@ if [[ ${PBF_URL: -8} != '.osm.pbf' ]]; then
 fi
 
 AREA=$(basename ${PBF_URL##*/} .osm.pbf)
-if [[ $PBF = "" ]]; then
-    PBF=$DIR_VICTOR/tilemaker/osm/$AREA.osm.pbf
+PBF=$DIR_VICTOR/tilemaker/osm/$AREA.osm.pbf
+if [[ $MBTILES = "" ]]; then
+    MBTILES=$DIR_VICTOR/tiles/$AREA.mbtiles
+else
+    MBTILES=$DIR_VICTOR/tiles/$MBTILES.mbtiles
 fi
-MBTILES=$DIR_VICTOR/tiles/$AREA.mbtiles
 echo "Victor dir:       $DIR_VICTOR"
 echo "Downloading from: $PBF_URL"
 echo "Saving to:        $PBF"
@@ -56,33 +57,31 @@ echo "Writing tiles to: $MBTILES"
 echo "Lets go!"
 
 function download {
-    pushd $DIR_VICTOR/tilemaker > /dev/null
-    echo -n "Downloading coastlines ... "
-    ./get-coastline.sh
-    echo "OK"
-    echo -n "Downloading landcover ... "
-    ./get-landcover.sh
-    echo "OK"
+    echo "--- BEGIN coastline download"
+    $DIR_VICTOR/tilemaker/get-coastline.sh
+    echo "--- END coastline download"
+    echo "--- BEGIN landcover download"
+    $DIR_VICTOR/tilemaker/get-landcover.sh
+    echo "--- END landcover download"
 
     mkdir -p $DIR_VICTOR/tilemaker/osm
 
-    echo -n "Downloading OSM data for $AREA "
-    if [ ! -r $PBF ] || [ $(($(date +%s) - $(date -r $PBF +%s))) -gt 86000 ]; then
-        echo -n " ... "
+    echo "--- BEGIN osm download for $AREA"
+    # If osm data doesn't exist or is outdated, download it.
+    if [ ! -r $PBF ] || [ $(($(date +%s) - $(date -r $PBF +%s))) -gt 604800 ]; then
         curl -Ssf --output $PBF $PBF_URL
     fi
-    echo "OK"
 
     if [[ ! -f $PBF ]]; then
         echo "Download of OSM data from '$PBF_URL' to destination '$PBF' failed" > /dev/stderr
         exit
     fi
-    popd > /dev/null
+    echo "--- END osm download for $AREA"
 }
 
 function gen_tiles {
+    echo "--- BEGIN generating world-wide coastlines and landcover ..."
     pushd $DIR_VICTOR/tilemaker > /dev/null
-    echo -n "Generating world-wide coastlines and landcover ..."
     if ! which tilemaker > /dev/null; then
         echo "\ntilemaker executable not found. Install and continue" > /dev/stderr
         exit
@@ -95,9 +94,8 @@ function gen_tiles {
               --store /tmp \
               --config $resources/config-coastline.json \
               --process $resources/process-coastline.lua
-    echo "done"
-    return
-    echo -n "Adding $AREA to tiles ..."
+    echo "--- END generating world-wide coastlines and landcover ..."
+    echo "--- BEGIN generating tiles for $AREA"
     tilemaker --input $PBF \
               --output $MBTILES \
               --merge \
@@ -105,7 +103,7 @@ function gen_tiles {
               --process $resources/process-openmaptiles.lua \
               --config $resources/config-openmaptiles.json
     popd > /dev/null
-    echo "done"
+    echo "--- END generating tiles for $AREA"
 }
 
 download
