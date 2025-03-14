@@ -21,11 +21,13 @@ function usage {
 
 This is a simple frontend to tilemaker for generating openmaptiles compatible
 mbtiles files based on regional data. It will create a mbtiles tile set in the
-/tiles folder of this repo.
+./tiles folder of this repo.
 
-PBF_URL is a url containing a osm.pbf dump, usually from geofabrik.de.  Defaults
-is $PBF_URL.  Use of multiple URLs will merge all data into the tile set
-specified with the -m option, which then is required.
+PBF_URL is a url containing a osm.pbf dump, usually from geofabrik.de.
+Default is $PBF_URL
+
+Use of multiple URLs will merge all data into the tile set specified with the -m
+option, which then is required.
 
 If the target mbtiles exist and is to be re-created, the tile generation will
 work on a shadow mbtiles file until complete and *then* replaced.
@@ -37,8 +39,8 @@ OPTIONS
                         operate on a shadow mbtiles file, but write to the
                         target mbtiles file directly.
 
-    -a DAYS             Don't update target unless its age have passed these
-                        many days.
+    -a DAYS             Don't update target unless it already exist and its age
+                        have passed these many days.
 
     -c                  Remove PBF files after generation. Repeat to remove
                         world coastline mbtiles too.
@@ -48,8 +50,8 @@ OPTIONS
 
     -h                  This help.
 
-    -m MBTILES          Basename of destination mbtiles file. It will end up in
-                        tiles/<MBTILE>.mbtiles. Required when using multiple
+    -m MBTILES          Basename of destination mbtiles file. It will end up as
+                        ./tiles/<MBTILEs>.mbtiles. Required when using multiple
                         URLs.
 "
 }
@@ -227,7 +229,7 @@ function finalize {
     echo
     echo "Finished writing tiles to $MBTILES"
     echo "Spent $(($SCRIPT_END / 60)):$(($SCRIPT_END % 60)) minutes"
-    echo "Target MBTILES file is $(($MBTILES_SIZE % 1048576)) MB"
+    echo "Target MBTILES file is $(($MBTILES_SIZE / 1048576)) MB"
 }
 
 init
