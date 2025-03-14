@@ -25,24 +25,28 @@ is $PBF_URL.  Use of multiple URLs will merge all data into the tile set
 specified with the -m option, which then is required.
 
 OPTIONS
+    -a                  Append PBFs from parameters to existing mbtiles. Useful
+                        when a previous step failed or you want to add
+                        additional data to a tile set.
     -c                  Remove PBF files after generation. Repeat to remove
                         world coastline mbtiles too.
-    -h                  This help.
     -f                  Force generation of mbtiles. Repeat to force download
-                        of source PBFs.
+                        of source PBFs too.
+    -h                  This help.
     -m MBTILE           Basename of destination mbtiles file. It will end up in
                         tiles/<MBTILE>.mbtiles. Required when using multiple
                         URLs.
 "
 }
 
-MBTILES=""
-FORCE=0
+APPEND=0
 CLEAN=0
-echo "step 2"
+FORCE=0
+MBTILES=""
 
-while getopts "cfhm:" option; do
+while getopts "acfhm:" option; do
     case $option in
+        a) APPEND=1 ;;
         c) CLEAN=$((CLEAN + 1)) ;;
         f) FORCE=$((FORCE + 1)) ;;
         h) usage
@@ -65,7 +69,6 @@ if [[ ! -z $1 ]]; then
     PBF_URL=$1
     PBF_URLS=$*
 fi
-echo "step 3"
 
 AREA=$(basename ${PBF_URL##*/} .osm.pbf)
 
@@ -86,7 +89,8 @@ function init {
         exit 1
     fi
 
-    if [[ $FORCE -lt 1 ]] &&
+    if [[ $APPEND = 0 ]] &&
+       [[ $FORCE -lt 1 ]] &&
        [[ -f $MBTILES ]] &&
        [[ $(($(date +%s) - $(date -r $MBTILES +%s))) -lt $MIN_AGE ]]
     then
@@ -117,10 +121,10 @@ function download_pbf {
        [[ ! -r $PBF_DEST ]] ||
        [[ $(($(date +%s) - $(date -r $PBF_DEST +%s))) -gt $MIN_AGE ]]
     then
-        echo "--- BEGIN osm download for $AREA"
+        echo "--- BEGIN osm download of $AREA"
         rm -f $PBF_DEST
         curl -Ssf --output $PBF_DEST $PBF_URL
-        echo "--- END osm download for $AREA"
+        echo "--- END osm download of $AREA"
     else
         echo "Not downloading PBF of $AREA: File exists and is recent."
     fi
@@ -189,7 +193,12 @@ function cleanup {
 }
 
 init
-make_world $PBF_URL
-prepare_mbtiles
+if [[ $APPEND = 0 ]] || ! [[ -f $MBTILES ]]; then
+    make_world $PBF_URL
+    prepare_mbtiles
+else
+    echo "Appending PBFs to existing mbtiles"
+    echo
+fi
 process_pbfs $PBF_URLS
 cleanup
