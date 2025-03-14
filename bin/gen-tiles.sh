@@ -1,7 +1,10 @@
 #!/bin/bash
 
+set -e
+set -u
+
 # Don't update unless destination mbtiles is younger than this many seconds.
-let MIN_AGE=604800
+MIN_AGE=604800
 
 # Default map source unless given as parameter.
 PBF_URL=https://download.geofabrik.de/europe/norway-latest.osm.pbf
@@ -22,19 +25,25 @@ is $PBF_URL.  Use of multiple URLs will merge all data into the tile set
 specified with the -m option, which then is required.
 
 OPTIONS
+    -c                  Remove PBF files after generation. Repeat to remove
+                        world coastline mbtiles too.
     -h                  This help.
     -f                  Force generation of mbtiles. Repeat to force download
                         of source PBFs.
-    -m TILE_FILE        Basename of destination mbtiles file. It will end up in
-                        tiles/<MBTILE>.mbtiles.
+    -m MBTILE           Basename of destination mbtiles file. It will end up in
+                        tiles/<MBTILE>.mbtiles. Required when using multiple
+                        URLs.
 "
 }
 
 MBTILES=""
-let FORCE=0
+FORCE=0
+CLEAN=0
+echo "step 2"
 
-while getopts "fhm:" option; do
+while getopts "cfhm:" option; do
     case $option in
+        c) CLEAN=$((CLEAN + 1)) ;;
         f) FORCE=$((FORCE + 1)) ;;
         h) usage
            exit
@@ -49,13 +58,14 @@ shift $(($OPTIND - 1))
 
 if [[ ! -z $2 ]] && [[ $MBTILES = "" ]]; then
     echo "-m option is required with multiple PBF sources" >> /dev/stderr
-    exit
+    exit 1
 fi
 
 if [[ ! -z $1 ]]; then
     PBF_URL=$1
     PBF_URLS=$*
 fi
+echo "step 3"
 
 AREA=$(basename ${PBF_URL##*/} .osm.pbf)
 
@@ -73,7 +83,7 @@ echo
 function init {
     if ! which tilemaker > /dev/null; then
         echo "tilemaker executable not found. Install and continue" > /dev/stderr
-        exit
+        exit 1
     fi
 
     if [[ $FORCE -lt 1 ]] &&
@@ -117,7 +127,7 @@ function download_pbf {
 
     if [[ ! -f $PBF_DEST ]]; then
         echo "Download of OSM data from '$PBF_URL' to destination '$PBF_DEST' failed" > /dev/stderr
-        exit
+        exit 1
     fi
 }
 
@@ -162,13 +172,24 @@ function gen_tiles {
 
 function process_pbfs {
     while [[ $# -gt 0 ]]; do
-        download_pbf $1
+        URL=$1
+        download_pbf $URL
         gen_tiles $PBF_DEST
+        if [[ $CLEAN -gt 0 ]]; then
+            echo rm -f $PBF_DEST
+        fi
         shift
     done
+}
+
+function cleanup {
+    if [[ CLEAN -gt 1 ]]; then
+        rm -f $MBTILES_WORLD
+    fi
 }
 
 init
 make_world $PBF_URL
 prepare_mbtiles
 process_pbfs $PBF_URLS
+cleanup
