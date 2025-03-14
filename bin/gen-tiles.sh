@@ -4,7 +4,8 @@ set -e
 set -u
 
 # Don't update unless destination mbtiles is younger than this many seconds.
-MIN_AGE=604800
+# This value is 1 week - 3 hours.
+MIN_AGE=594000
 
 # Default map source unless given as parameter.
 PBF_URL=https://download.geofabrik.de/europe/norway-latest.osm.pbf
@@ -16,7 +17,7 @@ MBTILES_WORLD=$DIR_VICTOR/tiles/world_coastlines.mbtiles
 SCRIPT_START=$(date +%s)
 
 function usage {
-    echo "$(basename $0) [OPTIONS] [PBF_URL ...]
+    echo "Usage: $(basename $0) [OPTIONS] [PBF_URL ...]
 
 This is a simple frontend to tilemaker for generating openmaptiles compatible
 mbtiles files based on regional data. It will create a mbtiles tile set in the
@@ -30,11 +31,14 @@ If the target mbtiles exist and is to be re-created, the tile generation will
 work on a shadow mbtiles file until complete and *then* replaced.
 
 OPTIONS
-    -a                  Append PBFs from parameters to existing mbtiles. Useful
+    -A                  Append PBFs from parameters to existing mbtiles. Useful
                         when a previous step failed or you want to add
                         additional data to a tile set. NOTE! This will not
                         operate on a shadow mbtiles file, but write to the
                         target mbtiles file directly.
+
+    -a DAYS             Don't update target unless its age have passed these
+                        many days.
 
     -c                  Remove PBF files after generation. Repeat to remove
                         world coastline mbtiles too.
@@ -55,9 +59,11 @@ CLEAN=0
 FORCE=0
 MBTILES=""
 
-while getopts "acfhm:" option; do
+while getopts "Aa:cfhm:" option; do
     case $option in
-        a) APPEND=1 ;;
+        A) APPEND=1 ;;
+        # Extract three hours (10800 sec) to compensate for tile generation.
+        a) MIN_AGE=$(($OPTARG * 86400 - 10800)) ;;
         c) CLEAN=$((CLEAN + 1)) ;;
         f) FORCE=$((FORCE + 1)) ;;
         h) usage
@@ -65,7 +71,7 @@ while getopts "acfhm:" option; do
            ;;
         m) MBTILES=$OPTARG ;;
         *) usage
-           exit
+           exit 1
            ;;
     esac
 done
