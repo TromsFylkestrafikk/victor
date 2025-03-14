@@ -6,7 +6,7 @@
 
 set -e
 
-VICTOR_PATH=/home/kaare/src/victor
+VICTOR_PATH=/var/www/victor
 
 START=$(date +%s)
 $VICTOR_PATH/bin/gen-tiles.sh \
