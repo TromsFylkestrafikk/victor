@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# Update tiles and restart martin upon success.
+#
+# Copy this to /etc/cron.daily/ as root and assert its mode is 644.
+
+VICTOR_PATH=/home/kaare/src/victor
+
+if $VICTOR_PATH/bin/gen-tiles.sh \
+    -m nordic
+    https://download.geofabrik.de/europe/norway-latest.osm.pbf \
+    https://download.geofabrik.de/europe/sweden-latest.osm.pbf \
+    https://download.geofabrik.de/europe/finland-latest.osm.pbf \
+    https://download.geofabrik.de/europe/denmark-latest.osm.pbf \
+    https://download.geofabrik.de/europe/iceland-latest.osm.pbf
+then
+    service martin restart
+fi
