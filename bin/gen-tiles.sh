@@ -13,6 +13,7 @@ DIR_VICTOR=$(dirname $(dirname $(realpath $0)))
 RESOURCES=$DIR_VICTOR/tilemaker/resources
 PBF_URLS=$PBF_URL
 MBTILES_WORLD=$DIR_VICTOR/tiles/world_coastlines.mbtiles
+SCRIPT_START=$(date +%s)
 
 function usage {
     echo "$(basename $0) [OPTIONS] [PBF_URL ...]
@@ -60,12 +61,12 @@ while getopts "acfhm:" option; do
 done
 shift $(($OPTIND - 1))
 
-if [[ ! -z $2 ]] && [[ $MBTILES = "" ]]; then
+if [[ $# -gt 1 ]] && [[ $MBTILES = "" ]]; then
     echo "-m option is required with multiple PBF sources" >> /dev/stderr
     exit 1
 fi
 
-if [[ ! -z $1 ]]; then
+if [[ $# -gt 0 ]]; then
     PBF_URL=$1
     PBF_URLS=$*
 fi
@@ -186,14 +187,21 @@ function process_pbfs {
     done
 }
 
-function cleanup {
+function finalize {
     if [[ CLEAN -gt 1 ]]; then
         rm -f $MBTILES_WORLD
     fi
+    SCRIPT_END=$(($(date +%s) - $SCRIPT_START))
+    echo
+    echo "------------------------------------------------------------------------------"
+    echo "Summary:"
+    echo
+    echo "Finished writing tiles to $MBTILES"
+    echo "Spent $(($SCRIPT_END / 60)):$(($SCRIPT_END % 60)) minutes"
 }
 
 init
-if [[ $APPEND = 0 ]] || ! [[ -f $MBTILES ]]; then
+if [[ $APPEND = 0 ]] || [[ ! -f $MBTILES ]]; then
     make_world $PBF_URL
     prepare_mbtiles
 else
@@ -201,4 +209,4 @@ else
     echo
 fi
 process_pbfs $PBF_URLS
-cleanup
+finalize
