@@ -11,6 +11,10 @@ MIN_AGE=594000
 PBF_URL=https://download.geofabrik.de/europe/norway-latest.osm.pbf
 
 DIR_VICTOR=$(dirname $(dirname $(realpath $0)))
+
+# Where to write temporary files (SSD storage is preferred)
+TMP=$DIR_VICTOR/tmp
+
 RESOURCES=$DIR_VICTOR/tilemaker/resources
 PBF_URLS=$PBF_URL
 MBTILES_WORLD=$DIR_VICTOR/tiles/world_coastlines.mbtiles
@@ -23,7 +27,7 @@ This is a simple frontend to tilemaker for generating openmaptiles compatible
 mbtiles files based on regional data. It will create a mbtiles tile set in the
 ./tiles folder of this repo.
 
-PBF_URL is a url containing a osm.pbf dump, usually from geofabrik.de.
+PBF_URL is a url containing an osm.pbf dump, usually from geofabrik.de.
 Default is $PBF_URL
 
 Use of multiple URLs will merge all data into the tile set specified with the -m
@@ -173,7 +177,7 @@ function make_world {
     tilemaker --input $PBF_DEST \
               --output $MBTILES_WORLD \
               --bbox -180,-85,180,85 \
-              --store /tmp \
+              --store $TMP \
               --config $RESOURCES/config-coastline.json \
               --process $RESOURCES/process-coastline.lua
     popd > /dev/null
@@ -193,7 +197,7 @@ function gen_tiles {
     tilemaker --input $PBF \
               --output $MBTILES_SHADOW \
               --merge \
-              --store /tmp \
+              --store $TMP \
               --process $RESOURCES/process-openmaptiles.lua \
               --config $RESOURCES/config-openmaptiles.json
     popd > /dev/null
@@ -202,7 +206,7 @@ function gen_tiles {
 
 function process_pbfs {
     while [[ $# -gt 0 ]]; do
-        URL=$1
+        local URL=$1
         download_pbf $URL
         gen_tiles $PBF_DEST
         if [[ $CLEAN -gt 0 ]]; then
