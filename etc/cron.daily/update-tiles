@@ -2,13 +2,13 @@
 
 # Update tiles and restart martin upon success.
 #
-# Copy this to /etc/cron.daily/ as root and assert its mode is 644.
+# Copy this to /etc/cron.daily/ as root and assert its mode is 755.
 
 set -e
 
-VICTOR_PATH=/var/www/victor
-START=$(date +%s)
+VICTOR_PATH=/home/kaare/src/victor
 
+START=$(date +%s)
 $VICTOR_PATH/bin/gen-tiles.sh \
     -m nordic \
     https://download.geofabrik.de/europe/norway-latest.osm.pbf \
@@ -18,6 +18,7 @@ $VICTOR_PATH/bin/gen-tiles.sh \
     https://download.geofabrik.de/europe/iceland-latest.osm.pbf
 
 MBTILES=$VICTOR_PATH/tiles/nordic.mbtiles
+
 # Restart server if target tile set is updated.
 if [[ -f $MBTILES ]] && [[ $(date -r $MBTILES +%s) -gt $START ]]; then
     service martin restart
