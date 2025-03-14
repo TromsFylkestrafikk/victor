@@ -17,7 +17,8 @@ $VICTOR_PATH/bin/gen-tiles.sh \
     https://download.geofabrik.de/europe/denmark-latest.osm.pbf \
     https://download.geofabrik.de/europe/iceland-latest.osm.pbf
 
+MBTILES=$VICTOR_PATH/tiles/nordic.mbtiles
 # Restart server if target tile set is updated.
-if [[ $(date -r $VICTOR_PATH/tiles/nordic.mbtiles) -gt $START ]]; then
+if [[ -f $MBTILES ]] && [[ $(date -r $MBTILES +%s) -gt $START ]]; then
     service martin restart
 fi
