@@ -7,7 +7,7 @@
 VICTOR_PATH=/var/www/victor
 
 if $VICTOR_PATH/bin/gen-tiles.sh \
-    -m nordic
+    -m nordic \
     https://download.geofabrik.de/europe/norway-latest.osm.pbf \
     https://download.geofabrik.de/europe/sweden-latest.osm.pbf \
     https://download.geofabrik.de/europe/finland-latest.osm.pbf \
