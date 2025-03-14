@@ -24,7 +24,7 @@
   "sources": {
     "openmaptiles": {
       "type": "vector",
-      "url": "https://victor2.tftservice.no/tiles/norway-tilemaker"
+      "url": "https://victor2.tftservice.no/tiles/nordic"
     }
   },
   "sprite": "https://victor2.tftservice.no/tiles/sprite/osm-bright",

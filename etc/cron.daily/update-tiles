@@ -4,7 +4,7 @@
 #
 # Copy this to /etc/cron.daily/ as root and assert its mode is 644.
 
-VICTOR_PATH=/home/kaare/src/victor
+VICTOR_PATH=/var/www/victor
 
 if $VICTOR_PATH/bin/gen-tiles.sh \
     -m nordic

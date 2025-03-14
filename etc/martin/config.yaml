@@ -12,7 +12,7 @@ cache_size_mb: 512
 
 mbtiles:
     paths:
-        - /var/www/victor/tiles/norway-tilemaker.mbtiles
+        - /var/www/victor/tiles/
 
 sprites:
     sources:
