@@ -19,22 +19,32 @@ function usage {
     echo "$(basename $0) [OPTIONS] [PBF_URL ...]
 
 This is a simple frontend to tilemaker for generating openmaptiles compatible
-mbtiles files based on regional data.
+mbtiles files based on regional data. It will create a mbtiles tile set in the
+/tiles folder of this repo.
 
 PBF_URL is a url containing a osm.pbf dump, usually from geofabrik.de.  Defaults
 is $PBF_URL.  Use of multiple URLs will merge all data into the tile set
 specified with the -m option, which then is required.
 
+If the target mbtiles exist and is to be re-created, the tile generation will
+work on a shadow mbtiles file until complete and *then* replaced.
+
 OPTIONS
     -a                  Append PBFs from parameters to existing mbtiles. Useful
                         when a previous step failed or you want to add
-                        additional data to a tile set.
+                        additional data to a tile set. NOTE! This will not
+                        operate on a shadow mbtiles file, but write to the
+                        target mbtiles file directly.
+
     -c                  Remove PBF files after generation. Repeat to remove
                         world coastline mbtiles too.
+
     -f                  Force generation of mbtiles. Repeat to force download
                         of source PBFs too.
+
     -h                  This help.
-    -m MBTILE           Basename of destination mbtiles file. It will end up in
+
+    -m MBTILES          Basename of destination mbtiles file. It will end up in
                         tiles/<MBTILE>.mbtiles. Required when using multiple
                         URLs.
 "
@@ -77,6 +87,13 @@ if [[ $MBTILES = "" ]]; then
     MBTILES=$DIR_VICTOR/tiles/$AREA.mbtiles
 else
     MBTILES=$DIR_VICTOR/tiles/$MBTILES.mbtiles
+fi
+
+# While creating tiles, write to this to omit overriding existing tile.
+if [[ -f $MBTILES ]] && [[ $APPEND = 0 ]]; then
+    MBTILES_SHADOW=$(dirname $MBTILES)/__$(basename $MBTILES)
+else
+    MBTILES_SHADOW=$MBTILES
 fi
 
 echo "Victor dir:       $DIR_VICTOR"
@@ -156,8 +173,8 @@ function make_world {
 }
 
 function prepare_mbtiles {
-    rm -f $MBTILES
-    cp -vp $MBTILES_WORLD $MBTILES
+    rm -f $MBTILES_SHADOW
+    cp -vp $MBTILES_WORLD $MBTILES_SHADOW
 }
 
 function gen_tiles {
@@ -166,7 +183,7 @@ function gen_tiles {
     echo "--- BEGIN generating tiles from $PBF_FILE"
     pushd $DIR_VICTOR/tilemaker > /dev/null
     tilemaker --input $PBF \
-              --output $MBTILES \
+              --output $MBTILES_SHADOW \
               --merge \
               --store /tmp \
               --process $RESOURCES/process-openmaptiles.lua \
@@ -188,16 +205,23 @@ function process_pbfs {
 }
 
 function finalize {
-    if [[ CLEAN -gt 1 ]]; then
+    if [[ $CLEAN -gt 1 ]]; then
         rm -f $MBTILES_WORLD
     fi
-    SCRIPT_END=$(($(date +%s) - $SCRIPT_START))
+
+    # Move working tile set to final destination
+    if [[ $MBTILES != $MBTILES_SHADOW ]]; then
+        mv -f $MBTILES_SHADOW $MBTILES
+    fi
+    local SCRIPT_END=$(($(date +%s) - $SCRIPT_START))
+    local MBTILES_SIZE=$(stat -c %s $MBTILES)
     echo
     echo "------------------------------------------------------------------------------"
     echo "Summary:"
     echo
     echo "Finished writing tiles to $MBTILES"
     echo "Spent $(($SCRIPT_END / 60)):$(($SCRIPT_END % 60)) minutes"
+    echo "Target MBTILES file is $(($MBTILES_SIZE % 1048576)) MB"
 }
 
 init
