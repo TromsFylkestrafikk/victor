@@ -147,13 +147,13 @@ function download_pbf {
     local AREA=$(basename $PBF_DEST .osm.pbf)
 
     # If osm data doesn't exist or is outdated, download it.
-    if [[ $FORCE -gt 1 ]] ||
+    if [[ $FORCE -gt 0 ]] ||
        [[ ! -r $PBF_DEST ]] ||
        [[ $(($(date +%s) - $(date -r $PBF_DEST +%s))) -gt $MIN_AGE ]]
     then
         echo "--- BEGIN osm download of $AREA"
         rm -f $PBF_DEST
-        curl -Ssf --output $PBF_DEST $PBF_URL
+        curl -LSsf --output $PBF_DEST $PBF_URL
         echo "--- END osm download of $AREA"
     else
         echo "Not downloading PBF of $AREA: File exists and is recent."
