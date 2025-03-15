@@ -21,6 +21,9 @@
   "zoom": 1,
   "bearing": 0,
   "pitch": 0,
+  "projection": {
+    "type": "globe"
+  },
   "sources": {
     "openmaptiles": {
       "type": "vector",
