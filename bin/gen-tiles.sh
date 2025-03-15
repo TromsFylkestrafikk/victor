@@ -176,7 +176,7 @@ function make_world {
     pushd $DIR_VICTOR/tilemaker > /dev/null
     tilemaker --input $PBF_DEST \
               --output $MBTILES_WORLD \
-              --bbox -180,-85,180,85 \
+              --bbox -180,-90,180,90 \
               --store $TMP \
               --config $RESOURCES/config-coastline.json \
               --process $RESOURCES/process-coastline.lua
