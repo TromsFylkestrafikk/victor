@@ -19,9 +19,9 @@ depending on your setup.
 [Tilemaker](https://github.com/systemed/tilemaker) is an excellent tool for
 creating mvt vector tiles from raw osm.pbf data. There is no config for this,
 but the script `bin/gen-tiles.sh` uses a slew of parameters. The generated tiles
-are dumped in the ./tiles folder as single MBTiles.
+are dumped in the `./tiles` folder as single MBTiles.
 
-In Ubuntu 22.04, the version of Tilemaker available is a bit outdated, as the
+In Ubuntu 24.04, the version of Tilemaker available is a bit outdated, as the
 3.0 version is a lot faster, so it's recommended to compile this yourself.
 
 ### Martin
@@ -77,3 +77,9 @@ this setup are:
 - The styles are available directly from nginx, if `./public/` is set to your
   vhosts root. They have hardcoded values to tile server data, which must be
   changed (branched out) for your installation.
+
+### Configs
+
+- The `./etc` folder has all necessary configs used in this stack, and may be
+  used directly on top of your system's `/etc` folder, if using \*NIX-alike
+  OSes.
