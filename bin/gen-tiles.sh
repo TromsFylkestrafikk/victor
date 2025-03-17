@@ -223,7 +223,7 @@ function finalize {
 
     # Move working tile set to final destination
     if [[ $MBTILES != $MBTILES_SHADOW ]]; then
-        mv -f $MBTILES_SHADOW $MBTILES
+        mv -vf $MBTILES_SHADOW $MBTILES
     fi
     local SCRIPT_END=$(($(date +%s) - $SCRIPT_START))
     local MBTILES_SIZE=$(stat -c %s $MBTILES)
