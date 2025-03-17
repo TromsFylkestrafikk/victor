@@ -74,12 +74,11 @@ this setup are:
 
 ### Styles
 
-- The styles are available directly from nginx, if `./public/` is set to your
-  vhosts root. They have hardcoded values to tile server data, which must be
-  changed (branched out) for your installation.
+The styles are available directly from nginx, if `./public/` is set to your
+vhosts root. They have hardcoded values to tile server data, which must be
+changed (branched out) for your installation.
 
 ### Configs
 
-- The `./etc` folder has all necessary configs used in this stack, and may be
-  used directly on top of your system's `/etc` folder, if using \*NIX-alike
-  OSes.
+The `./etc` folder has all necessary configs used in this stack, and may be used
+directly on top of your system's `/etc` folder, if using \*NIX-alike OSes.
