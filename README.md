@@ -12,6 +12,14 @@ Make sure you have ~50 - 100 GB of disk space available. The final mbtiles file
 will be at least 28 GB, and during generation, 2x or 3x of this is used,
 depending on your setup.
 
+## Usage
+
+Install at least Tilemaker (see below) in order to be able to generate the
+necessary tiles. To serve tiles you also need Martin and preferably nginx as
+front-end. Run the `./bin/gen-tiles.sh` with no arguments to generate a world
+wide tile set with regional, detailed data of Norway. Run `./bin/gen-tiles.sh
+-h` for more detailed synopsis.
+
 ## Tools and configs involved
 
 ### Tilemaker
