@@ -32,6 +32,8 @@ are dumped in the `./tiles` folder as single MBTiles.
 In Ubuntu 24.04, the version of Tilemaker available is a bit outdated, as the
 3.0 version is a lot faster, so it's recommended to compile this yourself.
 
+> On Mac, [install dependencies and build tilemaker from source](https://github.com/systemed/tilemaker/blob/master/docs/INSTALL.md#macos)
+
 ### Martin
 
 [Martin](https://maplibre.org/martin/introduction.html) is a web server for
@@ -44,10 +46,14 @@ anywhere.
 Install using e.g. `cargo binstall martin --root=/usr/local`, assuming you have
 Rust's `cargo` and `cargo-binstall` installed.
 
+> On Mac, [install Martin using HomeBrew](https://maplibre.org/martin/installation.html#homebrew)
+
 A Systemd service file is provided to make martin a first-class service citizen
 in your system. Copy this to `/etc/systemd/system/`, customize it, then enable
 it with `systemctl enable martin` and finally run it with `service martin
 start`.
+
+You can also serve the tiles folder with Martin directly using `martin ./tiles`.
 
 ### Nginx
 
@@ -86,21 +92,14 @@ The styles are available directly from nginx, if `./public/` is set to your
 vhosts root. They have hardcoded values to tile server data, which must be
 changed (branched out) for your installation.
 
+If you prefer not to use `nginx`, you can host the `./public/` folder directly using your http-server of choice, e.g. `npx http-server --cors ./public` 
+
 ### Configs
 
 The `./etc` folder has all necessary configs used in this stack, and may be used
 directly on top of your system's `/etc` folder, if using \*NIX-alike OSes.
 
-## Running on Mac OS
+## Troubleshooting
 
-1. Install Martin using HomeBrew by running `brew tap maplibre/martin` and `brew install martin`.
-2. Install cUrl using HomeBrew by running `brew install curl-openssl`
-3. Install dependencies for `tilemaker` using `brew installx boost lua51 shapelib rapidjson`
-4. Clone the [tilemaker](https://github.com/systemed/tilemaker) repository, `cd` into it and run `make`
-5. Install it by running `sudo make install`
-
-_Now we can generate tiles using_ `./bin/gen-tiles.sh`
-
-6. Serve the generated tiles by running `martin ./tiles`
-> We need to enable CORS such that the Martin server can access our styles
-7. Serve styles from the `./public` folder with your http-server of choice, e.g. `npx http-server --cors ./public` 
+### curl: (4) A requested feature, protocol or option was not found built-in in this libcurl due to a build-time decision.
+This occurs on Mac if you do not have the correct `cUrl` installed. Ensure `cUrl` with `openssl` support is installed (`brew install curl-openssl`).
