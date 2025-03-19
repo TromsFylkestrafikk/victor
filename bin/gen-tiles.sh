@@ -153,7 +153,7 @@ function download_pbf {
     then
         echo "--- BEGIN osm download of $AREA"
         rm -f $PBF_DEST
-        curl -LSsf --output $PBF_DEST $PBF_URL
+        curl -sf --output $PBF_DEST $PBF_URL
         echo "--- END osm download of $AREA"
     else
         echo "Not downloading PBF of $AREA: File exists and is recent."
@@ -226,7 +226,7 @@ function finalize {
         mv -vf $MBTILES_SHADOW $MBTILES
     fi
     local SCRIPT_END=$(($(date +%s) - $SCRIPT_START))
-    local MBTILES_SIZE=$(stat -c %s $MBTILES)
+    local MBTILES_SIZE=$(wc -c < "$MBTILES" | tr -d ' ')
     echo
     echo "------------------------------------------------------------------------------"
     echo "Summary:"

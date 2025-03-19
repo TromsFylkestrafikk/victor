@@ -42,7 +42,7 @@ Nginx is provided. Be aware that the CORS header allows running this from
 anywhere.
 
 Install using e.g. `cargo binstall martin --root=/usr/local`, assuming you have
-rust's `cargo` and `cargo-binstall` installed.
+Rust's `cargo` and `cargo-binstall` installed.
 
 A Systemd service file is provided to make martin a first-class service citizen
 in your system. Copy this to `/etc/systemd/system/`, customize it, then enable
@@ -90,3 +90,17 @@ changed (branched out) for your installation.
 
 The `./etc` folder has all necessary configs used in this stack, and may be used
 directly on top of your system's `/etc` folder, if using \*NIX-alike OSes.
+
+## Running on Mac OS
+
+1. Install Martin using HomeBrew by running `brew tap maplibre/martin` and `brew install martin`.
+2. Install cUrl using HomeBrew by running `brew install curl-openssl`
+3. Install dependencies for `tilemaker` using `brew installx boost lua51 shapelib rapidjson`
+4. Clone the [tilemaker](https://github.com/systemed/tilemaker) repository, `cd` into it and run `make`
+5. Install it by running `sudo make install`
+
+_Now we can generate tiles using_ `./bin/gen-tiles.sh`
+
+6. Serve the generated tiles by running `martin ./tiles`
+> We need to enable CORS such that the Martin server can access our styles
+7. Serve styles from the `./public` folder with your http-server of choice, e.g. `npx http-server --cors ./public` 

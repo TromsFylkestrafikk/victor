@@ -10,6 +10,6 @@ mkdir -p $DIR_TILEMAKER/coastline
 cd $DIR_TILEMAKER/coastline
 
 if ! [ -f "water-polygons-split-4326.zip" ]; then
-  curl --proto '=https' --tlsv1.3 -sSfO https://osmdata.openstreetmap.de/download/water-polygons-split-4326.zip
+  curl -sfO https://osmdata.openstreetmap.de/download/water-polygons-split-4326.zip
   unzip -o -j water-polygons-split-4326.zip
 fi
