@@ -394,7 +394,7 @@ function way_function()
 	if place == "island" then
 		LayerAsCentroid("place")
 		Attribute("class", place)
-		MinZoom(8)
+                SetMinZoomByAreaWithLimit(6)
 		local pop = tonumber(Find("population")) or 0
 		local capital = capitalLevel(Find("capital"))
 		local rank = calcRank(place, pop, nil)
@@ -681,6 +681,12 @@ function way_function()
 
 		return -- in case we get any landuse processing
 	end
+
+        if natural=="bay" and not is_closed and Holds("bay") and Holds("name") then
+           Layer("bays", false)
+           SetNameAttributes()
+           Attribute("class", Find("bay"))
+        end
 
 	-- Set 'landcover' (from landuse, natural, leisure)
 	local l = landuse
