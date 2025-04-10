@@ -154,24 +154,24 @@ function node_function()
 
 		if     place == "continent"     then mz=0
 		elseif place == "country"       then
-			if     pop>50000000 then rank=1; mz=1
-			elseif pop>20000000 then rank=2; mz=2
-			else                     rank=3; mz=3 end
-		elseif place == "state"         then mz=4
-		elseif place == "province"         then mz=5
-		elseif place == "city"          then mz=5
-		elseif place == "town" and pop>8000 then mz=7
-		elseif place == "town"          then mz=8
-		elseif place == "village" and pop>2000 then mz=9
-		elseif place == "village"       then mz=10
+			if     pop>20000000 then rank=1; mz=1
+			else                     rank=2; mz=2
+			end
+		elseif place == "state"         then mz=3
+		elseif place == "province"      then mz=4
+		elseif place == "city"          then mz=4
+		elseif place == "town" and pop>4000 then mz=6
+		elseif place == "town"          then mz=7
+		elseif place == "village" and pop>1000 then mz=8
+		elseif place == "village"       then mz=9
 		elseif place == "borough"       then mz=10
 		elseif place == "suburb"        then mz=11
+		elseif place == "hamlet"        then mz=11
 		elseif place == "quarter"       then mz=12
-		elseif place == "hamlet"        then mz=12
 		elseif place == "neighbourhood" then mz=13
 		elseif place == "isolated_dwelling" then mz=13
 		elseif place == "locality"      then mz=13
-		elseif place == "island"      then mz=12
+		elseif place == "island"      then mz=8
 		end
 
 		Layer("place", false)
@@ -394,7 +394,7 @@ function way_function()
 	if place == "island" then
 		LayerAsCentroid("place")
 		Attribute("class", place)
-		MinZoom(10)
+		MinZoom(8)
 		local pop = tonumber(Find("population")) or 0
 		local capital = capitalLevel(Find("capital"))
 		local rank = calcRank(place, pop, nil)
