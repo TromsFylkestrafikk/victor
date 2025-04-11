@@ -19,7 +19,7 @@
     "water":             { "minzoom": 6,  "maxzoom": 14, "simplify_below": 12, "simplify_level": 0.0003, "simplify_ratio": 2},
     "water_name":        { "minzoom": 14, "maxzoom": 14 },
     "water_name_detail": { "minzoom": 14, "maxzoom": 14, "write_to": "water_name" },
-    "bays":              { "minzoom": 6,  "maxzoom": 14 },
+    "bays":              { "minzoom": 6,  "maxzoom": 14, "write_to": "water_name" },
 
     "aeroway":           { "minzoom": 11, "maxzoom": 14 },
     "aerodrome_label":   { "minzoom": 10, "maxzoom": 14 },
