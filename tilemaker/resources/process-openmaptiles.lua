@@ -211,6 +211,7 @@ function node_function()
 	if natural == "bay" then
 		Layer("water_name", false)
 		SetNameAttributes()
+                Attribute("class", natural)
 		return
 	end
 end
