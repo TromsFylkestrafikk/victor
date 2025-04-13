@@ -7,13 +7,13 @@
 -- Alter these lines to control which languages are written for place/streetnames
 --
 -- Preferred language can be (for example) "en" for English, "de" for German, or nil to use OSM's name tag:
-preferred_language = nil
+preferred_language = "no"
 -- This is written into the following vector tile attribute (usually "name:latin"):
 preferred_language_attribute = "name:latin"
 -- If OSM's name tag differs, then write it into this attribute (usually "name_int"):
 default_language_attribute = "name_int"
 -- Also write these languages if they differ - for example, { "de", "fr" }
-additional_languages = { }
+additional_languages = { "en" }
 --------
 
 -- Enter/exit Tilemaker
@@ -30,9 +30,11 @@ function Set(list)
 end
 
 -- Meters per pixel if tile is 256x256
-ZRES5  = 4891.97
-ZRES6  = 2445.98
-ZRES7  = 1222.99
+ZRES3  = 19568
+ZRES4  = 9784
+ZRES5  = 4892
+ZRES6  = 2446
+ZRES7  = 1223
 ZRES8  = 611.5
 ZRES9  = 305.7
 ZRES10 = 152.9
@@ -198,7 +200,7 @@ function node_function()
 	local rank, class, subclass = GetPOIRank()
 	if rank then WritePOI(class,subclass,rank) end
 
-	-- Write 'mountain_peak' and 'water_name'
+	-- Write 'mountain_peak'
 	local natural = Find("natural")
 	if natural == "peak" or natural == "volcano" then
 		Layer("mountain_peak", false)
@@ -209,7 +211,7 @@ function node_function()
 		return
 	end
 	if natural == "bay" then
-		Layer("water_name", false)
+		Layer("bays", false)
 		SetNameAttributes()
                 Attribute("class", natural)
 		return
@@ -395,9 +397,8 @@ function way_function()
 	if place == "island" then
 		LayerAsCentroid("place")
 		Attribute("class", place)
-                SetMinZoomByAreaWithLimit(6)
+		SetMinZoomByAreaWithLimit(6, 2)
 		local pop = tonumber(Find("population")) or 0
-		local capital = capitalLevel(Find("capital"))
 		local rank = calcRank(place, pop, nil)
 		if rank then AttributeNumeric("rank", rank) end
 		SetNameAttributes()
@@ -658,15 +659,20 @@ function way_function()
 	end
 
 	-- Set 'water'
-	if natural=="water" or leisure=="swimming_pool" or landuse=="reservoir" or landuse=="basin" or waterClasses[waterway] then
+	if natural=="water" or
+	   leisure=="swimming_pool" or
+           landuse=="reservoir" or
+           landuse=="basin" or
+           waterClasses[waterway]
+        then
 		if Find("covered")=="yes" or not is_closed then return end
 		local class="lake"; if waterway~="" then class="river" end
 		if class=="lake" and Find("wikidata")=="Q192770" then return end
-		Layer("water",true)
-		SetMinZoomByArea(way)
+		Layer("water", true)
+		SetMinZoomByArea()
 		Attribute("class",class)
 
-		if Find("intermittent")=="yes" then Attribute("intermittent",1) end
+		if Find("intermittent") == "yes" then Attribute("intermittent", 1) end
 		-- we only want to show the names of actual lakes not every man-made basin that probably doesn't even have a name other than "basin"
 		-- examples for which we don't want to show a name:
 		--  https://www.openstreetmap.org/way/25958687
@@ -676,7 +682,7 @@ function way_function()
 		if Holds("name") and natural=="water" and water ~= "basin" and water ~= "wastewater" then
 			LayerAsCentroid("water_name_detail")
 			SetNameAttributes()
-			SetMinZoomByArea()
+			SetMinZoomByArea(2)
 			Attribute("class", class)
 		end
 
@@ -810,23 +816,30 @@ function SetBrunnelAttributes()
 	end
 end
 
--- Set minimum zoom level by area
-function SetMinZoomByArea()
-	SetMinZoomByAreaWithLimit(0)
+---Set minimum zoom level by area
+---@param offset? integer
+function SetMinZoomByArea(offset)
+	SetMinZoomByAreaWithLimit(0, offset)
 end
 
--- Set minimum zoom level by area but not below given minzoom
-function SetMinZoomByAreaWithLimit(minzoom)
-	local area=Area()
-	if     minzoom <= 6 and area>ZRES5^2  then MinZoom(6)
-	elseif minzoom <= 7 and area>ZRES6^2  then MinZoom(7)
-	elseif minzoom <= 8 and area>ZRES7^2  then MinZoom(8)
-	elseif minzoom <= 9 and area>ZRES8^2  then MinZoom(9)
-	elseif minzoom <= 10 and area>ZRES9^2  then MinZoom(10)
-	elseif minzoom <= 11 and area>ZRES10^2 then MinZoom(11)
-	elseif minzoom <= 12 and area>ZRES11^2 then MinZoom(12)
-	elseif minzoom <= 13 and area>ZRES12^2 then MinZoom(13)
-	else                      MinZoom(14) end
+--- Set minimum zoom level by area but not below given minzoom
+--- @param minzoom integer Zoom between 6 - 14
+--- @param offset? integer Offset off triggered zoom.
+function SetMinZoomByAreaWithLimit(minzoom, offset)
+	minzoom = math.max(minzoom, 6)
+	offset = offset or 0
+	local zoomRes = ZRES3
+	local currentZoom = 4 + offset
+
+	local area = Area()
+	while currentZoom < 14 do
+		if currentZoom >= minzoom and area > zoomRes ^ 2 then
+			break
+		end
+		zoomRes = zoomRes / 2
+		currentZoom = currentZoom + 1
+	end
+	MinZoom(currentZoom)
 end
 
 -- Calculate POIs (typically rank 1-4 go to 'poi' z12-14, rank 5+ to 'poi_detail' z14)
