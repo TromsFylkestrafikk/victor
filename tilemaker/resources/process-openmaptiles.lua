@@ -48,7 +48,7 @@ BUILDING_FLOOR_HEIGHT = 3.66
 INVALID_ZOOM = 99
 
 -- Process node/way tags
-aerodromeValues = Set { "international", "public", "regional", "military", "private" }
+aerodromeValues = Set { "international", "public", "regional", "military", "private", "military/public" }
 pavedValues = Set { "paved", "asphalt", "cobblestone", "concrete", "concrete:lanes", "concrete:plates", "metal", "paving_stones", "sett", "unhewn_cobblestone", "wood" }
 unpavedValues = Set { "unpaved", "compacted", "dirt", "earth", "fine_gravel", "grass", "grass_paver", "gravel", "gravel_turf", "ground", "ice", "mud", "pebblestone", "salt", "sand", "snow", "woodchips" }
 
@@ -173,7 +173,7 @@ function node_function()
 		elseif place == "neighbourhood" then mz=13
 		elseif place == "isolated_dwelling" then mz=13
 		elseif place == "locality"      then mz=13
-		elseif place == "island"      then mz=8
+		elseif place == "island"        then mz=12
 		end
 
 		Layer("place", false)
@@ -397,7 +397,11 @@ function way_function()
 	if place == "island" then
 		LayerAsCentroid("place")
 		Attribute("class", place)
-		SetMinZoomByAreaWithLimit(6, 3)
+		if is_closed then
+			SetMinZoomByArea(2)
+		else
+			MinZoom(11)
+		end
 		local pop = tonumber(Find("population")) or 0
 		local rank = calcRank(place, pop, nil)
 		if rank then AttributeNumeric("rank", rank) end
@@ -432,7 +436,7 @@ function way_function()
 		elseif admin_level>=8 then mz=12
 		end
 
-		Layer("boundary",false)
+		Layer("boundary", false)
 		AttributeNumeric("admin_level", admin_level)
 		MinZoom(mz)
 		-- disputed status (0 or 1). some styles need to have the 0 to show it.
@@ -615,7 +619,10 @@ function way_function()
   		SetEleAttributes()
  	 	Attribute("icao", Find("icao"))
 
- 	 	local aerodrome = Find(aeroway)
+		local aerodrome = Find(aeroway)
+		if aerodrome == "" then
+			aerodrome = Find("aerodrome:type")
+		end
  	 	local class
  	 	if aerodromeValues[aerodrome] then class = aerodrome else class = "other" end
  	 	Attribute("class", class)
