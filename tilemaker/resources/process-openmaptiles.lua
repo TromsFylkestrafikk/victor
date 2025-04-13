@@ -397,7 +397,7 @@ function way_function()
 	if place == "island" then
 		LayerAsCentroid("place")
 		Attribute("class", place)
-		SetMinZoomByAreaWithLimit(6, 2)
+		SetMinZoomByAreaWithLimit(6, 3)
 		local pop = tonumber(Find("population")) or 0
 		local rank = calcRank(place, pop, nil)
 		if rank then AttributeNumeric("rank", rank) end
@@ -599,15 +599,18 @@ function way_function()
 	-- 'Aeroway'
 	if aeroway~="" then
 		Layer("aeroway", is_closed)
-		Attribute("class",aeroway)
-		Attribute("ref",Find("ref"))
+		if is_closed then
+			SetMinZoomByArea()
+		end
+		Attribute("class", aeroway)
+		Attribute("ref", Find("ref"))
 		write_name = true
 	end
 
 	-- 'aerodrome_label'
 	if aeroway=="aerodrome" then
 	 	LayerAsCentroid("aerodrome_label")
-	 	SetNameAttributes()
+		SetNameAttributes()
 	 	Attribute("iata", Find("iata"))
   		SetEleAttributes()
  	 	Attribute("icao", Find("icao"))

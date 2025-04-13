@@ -21,8 +21,8 @@
     "water_name_detail": { "minzoom": 6,  "maxzoom": 14, "write_to": "water_name" },
     "bays":              { "minzoom": 7,  "maxzoom": 14, "write_to": "water_name" },
 
-    "aeroway":           { "minzoom": 11, "maxzoom": 14 },
-    "aerodrome_label":   { "minzoom": 10, "maxzoom": 14 },
+    "aeroway":           { "minzoom": 9, "maxzoom": 14 },
+    "aerodrome_label":   { "minzoom": 6, "maxzoom": 14 },
     "park":              { "minzoom": 11, "maxzoom": 14 },
     "landuse":           { "minzoom":  4, "maxzoom": 14, "simplify_below": 13, "simplify_level": 0.0003, "simplify_ratio": 2 },
     "landcover":         { "minzoom":  0, "maxzoom": 14, "simplify_below": 13, "simplify_level": 0.0003, "simplify_ratio": 2 },
