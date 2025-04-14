@@ -305,8 +305,27 @@ waterwayClasses = Set { "stream", "river", "canal", "drain", "ditch" }
 -- Scan relations for use in ways
 
 function relation_scan_function()
-	if Find("type")=="boundary" and Find("boundary")=="administrative" then
+	if Find("type") == "boundary" and Find("boundary") == "administrative" then
 		Accept()
+	end
+end
+
+function relation_function()
+	if not IsClosed()  then return end
+	local admin_level = tonumber(Find("admin_level"))
+	if Find("type") == "boundary" and admin_level then
+		-- Layer("boundary_name", false)
+		SetMinZoomByArea(1)
+		local place = Find("place")
+		print(admin_level .. " (" .. place .. "): " .. Find("name:no"))
+		LayerAsCentroid("boundary_name")
+		SetNameAttributes()
+		-- MinZoom(3)
+		AttributeNumeric("admin_level", admin_level)
+		if place ~= "" then
+			Attribute("class", place)
+		end
+		SetRankFromPopulation()
 	end
 end
 
@@ -402,15 +421,14 @@ function way_function()
 		else
 			MinZoom(11)
 		end
-		local pop = tonumber(Find("population")) or 0
-		local rank = calcRank(place, pop, nil)
-		if rank then AttributeNumeric("rank", rank) end
+		SetRankFromPopulation()
 		SetNameAttributes()
 	end
 
 	-- Boundaries within relations
-	-- note that we process administrative boundaries as properties on ways, rather than as single relation geometries,
-	--  because otherwise we get multiple renderings where boundaries are coterminous
+	-- Note that we process administrative boundaries as properties on ways,
+	-- rather than as single relation geometries, because otherwise we get
+	-- multiple renderings where boundaries are coterminous
 	local admin_level = 11
 	local isBoundary = false
 	while true do
@@ -441,7 +459,7 @@ function way_function()
 		MinZoom(mz)
 		-- disputed status (0 or 1). some styles need to have the 0 to show it.
 		local disputed = Find("disputed")
-		if disputed=="yes" then
+		if disputed == "yes" then
 			AttributeNumeric("disputed", 1)
 		else
 			AttributeNumeric("disputed", 0)
@@ -771,6 +789,12 @@ function WritePOI(class,subclass,rank)
 	if level then
 		AttributeNumeric("level", level)
 	end
+end
+
+function SetRankFromPopulation()
+	local pop = tonumber(Find("population")) or 0
+	local rank = calcRank(place, pop, nil)
+	if rank then AttributeNumeric("rank", rank) end
 end
 
 -- Check if there are name tags on the object
