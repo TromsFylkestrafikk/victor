@@ -186,7 +186,7 @@ function node_function()
 		local rank = calcRank(place, pop, capital)
 		if place == "country" then
 			if pop > 20000000 then rank=1
-			else rank = 2
+			else rank = 2 end
 		end
 
 		Layer("place", false)
