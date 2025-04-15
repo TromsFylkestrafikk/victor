@@ -330,7 +330,7 @@ function relation_function()
 	local admin_level = tonumber(Find("admin_level"))
 	local place = Find("place")
 	if Find("type") == "boundary" and place ~= "" and admin_level and HasNames() then
-		local pop = Find("population")
+		local pop = tonumber(Find("population")) or 0
 		local mz = CalcPlaceZoom(place, pop)
 		LayerAsCentroid("place")
 		-- print("L" .. admin_level .. " z" .. mz .. " (" .. place .. "): " .. Find("name"))
