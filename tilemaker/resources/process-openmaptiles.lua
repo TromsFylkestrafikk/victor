@@ -69,10 +69,11 @@ function capitalLevel(capital)
         return capital_al
 end
 
--- Calculate rank for place nodes
--- place: value of place=*
--- popuplation: population as number
--- capital_al: result of capitalLevel()
+---Calculate rank for place nodes
+---@param place string value of place=*
+---@param population integer population as number
+---@param capital_al integer|nil result of `capitalLevel()`
+---@return integer
 function calcRank(place, population, capital_al)
 	local rank = 0
 	if capital_al and capital_al >= 2 and capital_al <= 4 then
@@ -121,6 +122,37 @@ function calcRank(place, population, capital_al)
 	return 10
 end
 
+PlaceZoomMap = {
+	continent = 0,
+	country = 2,
+	state = 3,
+	county = 3,
+	province = 4,
+	city = 4,
+	municipality = 5,
+	town = 6,
+	village = 9,
+	borough = 10,
+	suburb = 11,
+	hamlet = 11,
+	island = 12,
+	quarter = 12,
+	neighbourhood = 13,
+	isolated_dwelling = 13,
+	locality = 13,
+}
+
+function CalcPlaceZoom(place, pop)
+	pop = pop or 0
+	if     place == "country"       then
+		if     pop>20000000 then return 1
+		else                     return 2
+		end
+	elseif place == "town" and pop > 4000 then return 6
+	elseif place == "village" and pop > 1000 then return 8
+	end
+	return PlaceZoomMap[place] or 13
+end
 
 function node_function()
 	-- Write 'aerodrome_label'
@@ -149,36 +181,17 @@ function node_function()
 	--   we could potentially approximate it for cities based on the population tag
 	local place = Find("place")
 	if place ~= "" then
-		local mz = 13
 		local pop = tonumber(Find("population")) or 0
 		local capital = capitalLevel(Find("capital"))
 		local rank = calcRank(place, pop, capital)
-
-		if     place == "continent"     then mz=0
-		elseif place == "country"       then
-			if     pop>20000000 then rank=1; mz=1
-			else                     rank=2; mz=2
-			end
-		elseif place == "state"         then mz=3
-		elseif place == "province"      then mz=4
-		elseif place == "city"          then mz=4
-		elseif place == "town" and pop>4000 then mz=6
-		elseif place == "town"          then mz=7
-		elseif place == "village" and pop>1000 then mz=8
-		elseif place == "village"       then mz=9
-		elseif place == "borough"       then mz=10
-		elseif place == "suburb"        then mz=11
-		elseif place == "hamlet"        then mz=11
-		elseif place == "quarter"       then mz=12
-		elseif place == "neighbourhood" then mz=13
-		elseif place == "isolated_dwelling" then mz=13
-		elseif place == "locality"      then mz=13
-		elseif place == "island"        then mz=12
+		if place == "country" then
+			if pop > 20000000 then rank=1
+			else rank = 2
 		end
 
 		Layer("place", false)
 		Attribute("class", place)
-		MinZoom(mz)
+		MinZoom(CalcPlaceZoom(place, pop))
 		if rank then AttributeNumeric("rank", rank) end
 		if capital then AttributeNumeric("capital", capital) end
 		if place=="country" then
@@ -313,18 +326,16 @@ end
 function relation_function()
 	if not IsClosed()  then return end
 	local admin_level = tonumber(Find("admin_level"))
-	if Find("type") == "boundary" and admin_level and HasNames() then
-		-- Layer("boundary_name", false)
-		SetMinZoomByArea(1)
-		local place = Find("place")
-		print(admin_level .. " (" .. place .. "): " .. Find("name:no"))
-		LayerAsCentroid("boundary_name")
-		SetNameAttributes()
-		-- MinZoom(3)
+	local place = Find("place")
+	if Find("type") == "boundary" and place ~= "" and admin_level and HasNames() then
+		local pop = Find("population")
+		local mz = CalcPlaceZoom(place, pop)
+		LayerAsCentroid("place")
+		-- print("L" .. admin_level .. " z" .. mz .. " (" .. place .. "): " .. Find("name"))
+		Attribute("class", place)
 		AttributeNumeric("admin_level", admin_level)
-		if place ~= "" then
-			Attribute("class", place)
-		end
+		SetNameAttributes()
+		MinZoom(mz)
 		SetRankFromPopulation()
 	end
 end
@@ -439,19 +450,19 @@ function way_function()
 	end
 
 	-- Boundaries in ways
-	if boundary=="administrative" then
+	if boundary == "administrative" then
 		admin_level = math.min(admin_level, tonumber(Find("admin_level")) or 11)
 		isBoundary = true
 	end
 
 	-- Administrative boundaries
 	-- https://openmaptiles.org/schema/#boundary
-	if isBoundary and not (Find("maritime")=="yes") then
+	if isBoundary and Find("maritime") ~= "yes" then
 		local mz = 0
-		if     admin_level>=3 and admin_level<5 then mz=4
-		elseif admin_level>=5 and admin_level<7 then mz=8
-		elseif admin_level==7 then mz=10
-		elseif admin_level>=8 then mz=12
+		if     admin_level >= 3 and admin_level < 5 then mz = 4
+		elseif admin_level >= 5 and admin_level < 7 then mz = 6
+		elseif admin_level == 7                     then mz = 7
+		elseif admin_level >= 8                     then mz = 12
 		end
 
 		Layer("boundary", false)
