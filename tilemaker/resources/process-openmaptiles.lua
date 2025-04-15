@@ -313,7 +313,7 @@ end
 function relation_function()
 	if not IsClosed()  then return end
 	local admin_level = tonumber(Find("admin_level"))
-	if Find("type") == "boundary" and admin_level then
+	if Find("type") == "boundary" and admin_level and HasNames() then
 		-- Layer("boundary_name", false)
 		SetMinZoomByArea(1)
 		local place = Find("place")
