@@ -13,7 +13,7 @@ preferred_language_attribute = "name:latin"
 -- If OSM's name tag differs, then write it into this attribute (usually "name_int"):
 default_language_attribute = "name_int"
 -- Also write these languages if they differ - for example, { "de", "fr" }
-additional_languages = { "en" }
+additional_languages = { "en", "se", "de" }
 --------
 
 -- Enter/exit Tilemaker
@@ -259,6 +259,8 @@ landcoverKeys   = { wood="wood", forest="wood",
                     glacier="ice", ice_shelf="ice",
                     bare_rock="rock", scree="rock",
                     fell="grass", grassland="grass", grass="grass", heath="grass", meadow="grass", allotments="grass", park="grass", village_green="grass", recreation_ground="grass", scrub="grass", shrubbery="grass", tundra="grass", garden="grass", golf_course="grass", park="grass" }
+
+landcoverLineKeys  = Set { "valley", "gorge", "ridge" }
 
 -- POI key/value pairs: based on https://github.com/openmaptiles/openmaptiles/blob/master/layers/poi/mapping.yaml
 poiTags         = { aerialway = Set { "station" },
@@ -707,7 +709,7 @@ function way_function()
 		if class=="lake" and Find("wikidata")=="Q192770" then return end
 		Layer("water", true)
 		SetMinZoomByArea()
-		Attribute("class",class)
+		Attribute("class", class)
 
 		if Find("intermittent") == "yes" then Attribute("intermittent", 1) end
 		-- we only want to show the names of actual lakes not every man-made basin that probably doesn't even have a name other than "basin"
@@ -716,7 +718,7 @@ function way_function()
 		--  https://www.openstreetmap.org/way/27201902
 		--  https://www.openstreetmap.org/way/25309134
 		--  https://www.openstreetmap.org/way/24579306
-		if Holds("name") and natural=="water" and water ~= "basin" and water ~= "wastewater" then
+		if HasNames() and natural=="water" and water ~= "basin" and water ~= "wastewater" then
 			LayerAsCentroid("water_name_detail")
 			SetNameAttributes()
 			SetMinZoomByArea(2)
@@ -726,11 +728,18 @@ function way_function()
 		return -- in case we get any landuse processing
 	end
 
-        if natural=="bay" and not is_closed and Holds("bay") and Holds("name") then
+        local bay = Find("bay")
+        if natural=="bay" and not is_closed and bay ~="" and HasNames() then
            Layer("bays", false)
            SetNameAttributes()
-           Attribute("class", Find("bay"))
+           Attribute("class", bay)
         end
+
+	if landcoverLineKeys[natural] and HasNames() and not IsClosed() then
+		Layer("landcover_name", false)
+		SetNameAttributes()
+		Attribute("class", natural)
+	end
 
 	-- Set 'landcover' (from landuse, natural, leisure)
 	local l = landuse
