@@ -327,9 +327,10 @@ end
 
 function relation_function()
 	if not IsClosed()  then return end
+	local boundary = Find("boundary")
 	local admin_level = tonumber(Find("admin_level"))
 	local place = Find("place")
-	if Find("type") == "boundary" and place ~= "" and admin_level and HasNames() then
+	if Find("type") == "boundary" and boundary == "administrative" and admin_level and HasNames() then
 		local pop = tonumber(Find("population")) or 0
 		local mz = CalcPlaceZoom(place, pop)
 		LayerAsCentroid("place")
