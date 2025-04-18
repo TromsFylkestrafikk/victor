@@ -325,6 +325,18 @@ function relation_scan_function()
 	end
 end
 
+function CalcAdminLevelZoom(level, pop)
+	pop = pop or 0
+	if level == 2 then
+		if pop>20000000 then return 1
+		else return 2
+		end
+	elseif level == 4 then return 5
+	end
+	return level
+end
+
+
 function relation_function()
 	if not IsClosed()  then return end
 	local boundary = Find("boundary")
@@ -332,10 +344,12 @@ function relation_function()
 	local place = Find("place")
 	if Find("type") == "boundary" and boundary == "administrative" and admin_level and HasNames() then
 		local pop = tonumber(Find("population")) or 0
-		local mz = CalcPlaceZoom(place, pop)
+		local mz = CalcAdminLevelZoom(admin_level, pop)
 		LayerAsCentroid("place")
-		-- print("L" .. admin_level .. " z" .. mz .. " (" .. place .. "): " .. Find("name"))
-		Attribute("class", place)
+		print("L" .. admin_level .. " z" .. mz .. " (" .. place .. "): " .. Find("name"))
+                if place then
+                   Attribute("class", place)
+                end
 		AttributeNumeric("admin_level", admin_level)
 		SetNameAttributes()
 		MinZoom(mz)
