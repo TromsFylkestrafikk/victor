@@ -346,7 +346,7 @@ function relation_function()
 		local pop = tonumber(Find("population")) or 0
 		local mz = CalcAdminLevelZoom(admin_level, pop)
 		LayerAsCentroid("place")
-		print("L" .. admin_level .. " z" .. mz .. " (" .. place .. "): " .. Find("name"))
+		-- print("L" .. admin_level .. " z" .. mz .. " (" .. place .. "): " .. Find("name"))
                 if place then
                    Attribute("class", place)
                 end
@@ -403,8 +403,52 @@ function write_to_transportation_layer(minzoom, highway_class, subclass, ramp, s
 	end
 end
 
--- Process way tags
 
+function AdminArea()
+	-- Boundaries within relations
+	-- Note that we process administrative boundaries as properties on ways,
+	-- rather than as single relation geometries, because otherwise we get
+	-- multiple renderings where boundaries are coterminous
+	local admin_level = 11
+	local isBoundary = false
+	while true do
+		local rel = NextRelation()
+		if not rel then break end
+		isBoundary = true
+		admin_level = math.min(admin_level, tonumber(FindInRelation("admin_level")) or 11)
+	end
+
+	-- Boundaries in ways
+	if boundary == "administrative" then
+		admin_level = math.min(admin_level, tonumber(Find("admin_level")) or 11)
+		isBoundary = true
+	end
+
+	-- Administrative boundaries
+	-- https://openmaptiles.org/schema/#boundary
+	if isBoundary and Find("maritime") ~= "yes" then
+		local mz = 0
+		if     admin_level >= 3 and admin_level < 5 then mz = 4
+		elseif admin_level >= 5 and admin_level < 7 then mz = 6
+		elseif admin_level == 7                     then mz = 7
+		elseif admin_level >= 8                     then mz = 12
+		end
+
+		Layer("boundary", false)
+		AttributeNumeric("admin_level", admin_level)
+		MinZoom(mz)
+		-- disputed status (0 or 1). some styles need to have the 0 to show it.
+		local disputed = Find("disputed")
+		if disputed == "yes" then
+			AttributeNumeric("disputed", 1)
+		else
+			AttributeNumeric("disputed", 0)
+		end
+	end
+
+end
+
+-- Process way tags
 function way_function()
 	local route    = Find("route")
 	local highway  = Find("highway")
@@ -453,46 +497,7 @@ function way_function()
 		SetNameAttributes()
 	end
 
-	-- Boundaries within relations
-	-- Note that we process administrative boundaries as properties on ways,
-	-- rather than as single relation geometries, because otherwise we get
-	-- multiple renderings where boundaries are coterminous
-	local admin_level = 11
-	local isBoundary = false
-	while true do
-		local rel = NextRelation()
-		if not rel then break end
-		isBoundary = true
-		admin_level = math.min(admin_level, tonumber(FindInRelation("admin_level")) or 11)
-	end
-
-	-- Boundaries in ways
-	if boundary == "administrative" then
-		admin_level = math.min(admin_level, tonumber(Find("admin_level")) or 11)
-		isBoundary = true
-	end
-
-	-- Administrative boundaries
-	-- https://openmaptiles.org/schema/#boundary
-	if isBoundary and Find("maritime") ~= "yes" then
-		local mz = 0
-		if     admin_level >= 3 and admin_level < 5 then mz = 4
-		elseif admin_level >= 5 and admin_level < 7 then mz = 6
-		elseif admin_level == 7                     then mz = 7
-		elseif admin_level >= 8                     then mz = 12
-		end
-
-		Layer("boundary", false)
-		AttributeNumeric("admin_level", admin_level)
-		MinZoom(mz)
-		-- disputed status (0 or 1). some styles need to have the 0 to show it.
-		local disputed = Find("disputed")
-		if disputed == "yes" then
-			AttributeNumeric("disputed", 1)
-		else
-			AttributeNumeric("disputed", 0)
-		end
-	end
+        AdminArea()
 
 	-- Aerialways ('transportation' and 'transportation_name')
 	if aerialway ~= "" then
