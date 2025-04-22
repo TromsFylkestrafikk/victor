@@ -347,7 +347,7 @@ function relation_function()
 		local mz = CalcAdminLevelZoom(admin_level, pop)
 		LayerAsCentroid("place")
 		-- print("L" .. admin_level .. " z" .. mz .. " (" .. place .. "): " .. Find("name"))
-                if place then
+		if place then
                    Attribute("class", place)
                 end
 		AttributeNumeric("admin_level", admin_level)
