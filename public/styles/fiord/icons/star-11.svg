@@ -1,3 +1,57 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 17 17" height="17" width="17"><title>star-11.svg</title><rect fill="none" x="0" y="0" width="17" height="17"></rect><path fill="rgba(255,255,255,0.25)" transform="translate(3 3)" d="M5.4,0L4,3.5H0l3,3L1.5,11l3.9-2.6
-	L9.5,11L8,6.5l3-3H7L5.4,0z" style="stroke-linejoin:round;stroke-miterlimit:4px;" stroke="rgba(255,255,255,0.25)" stroke-width="2"></path><path fill="#444444" transform="translate(3 3)" d="M5.4,0L4,3.5H0l3,3L1.5,11l3.9-2.6
-	L9.5,11L8,6.5l3-3H7L5.4,0z"></path></svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   viewBox="0 0 17 17"
+   height="17"
+   width="17"
+   version="1.1"
+   id="svg2"
+   sodipodi:docname="star-11.svg"
+   inkscape:version="1.4 (e7c3feb100, 2024-10-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="namedview2"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:zoom="70.294118"
+     inkscape:cx="8.507113"
+     inkscape:cy="8.5"
+     inkscape:window-width="2560"
+     inkscape:window-height="1403"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2" />
+  <title
+     id="title1">star-11.svg</title>
+  <rect
+     fill="none"
+     x="0"
+     y="0"
+     width="17"
+     height="17"
+     id="rect1" />
+  <path
+     fill="rgba(255,255,255,0.25)"
+     transform="translate(3 3)"
+     d="M5.4,0L4,3.5H0l3,3L1.5,11l3.9-2.6  L9.5,11L8,6.5l3-3H7L5.4,0z"
+     style="stroke-linejoin:round;stroke-miterlimit:4px;"
+     stroke="rgba(255,255,255,0.25)"
+     stroke-width="2"
+     id="path1" />
+  <path
+     fill="#444444"
+     transform="translate(3 3)"
+     d="M5.4,0L4,3.5H0l3,3L1.5,11l3.9-2.6  L9.5,11L8,6.5l3-3H7L5.4,0z"
+     id="path2"
+     style="fill:#949494;fill-opacity:1" />
+</svg>
