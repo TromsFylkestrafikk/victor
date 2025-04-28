@@ -234,11 +234,11 @@ end
 -- Process way tags
 
 majorRoadValues = Set { "motorway", "trunk", "primary" }
-z9RoadValues  = Set { "secondary", "motorway_link", "trunk_link" }
-z10RoadValues  = Set { "primary_link", "secondary_link" }
-z11RoadValues   = Set { "tertiary", "tertiary_link", "busway", "bus_guideway" }
+z9RoadValues  = Set { "secondary" }
+z10RoadValues  = Set { "tertiary", "motorway_link", "trunk_link" }
+z11RoadValues   = Set { "primary_link", "secondary_link", "busway", "bus_guideway" }
 -- On zoom 12, various road classes are merged into "minor"
-z12MinorRoadValues = Set { "unclassified", "residential", "road", "living_street" }
+z12MinorRoadValues = Set { "tertiary_link", "unclassified", "residential", "road", "living_street" }
 z12OtherRoadValues = Set { "raceway" }
 z13RoadValues     = Set { "track", "service" }
 manMadeRoadValues = Set { "pier", "bridge" }
@@ -728,7 +728,7 @@ function way_function()
 		local class="lake"; if waterway~="" then class="river" end
 		if class=="lake" and Find("wikidata")=="Q192770" then return end
 		Layer("water", true)
-		SetMinZoomByArea()
+		SetMinZoomByArea(-1)
 		Attribute("class", class)
 
 		if Find("intermittent") == "yes" then Attribute("intermittent", 1) end
