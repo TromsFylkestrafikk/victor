@@ -226,8 +226,14 @@ function node_function()
 	if natural == "bay" then
 		Layer("bays", false)
 		SetNameAttributes()
-                Attribute("class", natural)
+		Attribute("class", natural)
 		return
+	end
+
+	local highway = Find("highway")
+	if highway == "turning_circle" then
+		Layer("transportation", false)
+		Attribute("class", highway)
 	end
 end
 
