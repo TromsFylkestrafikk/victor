@@ -234,6 +234,7 @@ function node_function()
 	if highway == "turning_circle" then
 		Layer("transportation", false)
 		Attribute("class", highway)
+		MinZoom(14)
 	end
 end
 
