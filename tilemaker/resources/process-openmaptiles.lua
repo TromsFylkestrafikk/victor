@@ -268,6 +268,7 @@ landcoverKeys   = { wood="wood", forest="wood",
                     fell="grass", grassland="grass", grass="grass", heath="grass", meadow="grass", allotments="grass", park="grass", village_green="grass", recreation_ground="grass", scrub="grass", shrubbery="grass", tundra="grass", garden="grass", golf_course="grass", park="grass" }
 
 landcoverLineKeys  = Set { "valley", "gorge", "ridge" }
+waterLineKeys = Set { "fjord", "strait" }
 
 -- POI key/value pairs: based on https://github.com/openmaptiles/openmaptiles/blob/master/layers/poi/mapping.yaml
 poiTags         = { aerialway = Set { "station" },
@@ -756,16 +757,19 @@ function way_function()
 	end
 
         local bay = Find("bay")
-        if natural=="bay" and not is_closed and bay ~="" and HasNames() then
-           Layer("bays", false)
+        if natural == "bay" and bay == "fjord" then
+           natural = "fjord"
+        end
+        if waterLineKeys[natural] and HasNames() and not is_closed then
+           Layer("water_name", false)
            SetNameAttributes()
-           Attribute("class", bay)
+           Attribute("class", natural)
         end
 
-	if landcoverLineKeys[natural] and HasNames() and not IsClosed() then
-		Layer("landcover_name", false)
-		SetNameAttributes()
-		Attribute("class", natural)
+	if landcoverLineKeys[natural] and HasNames() and not is_closed then
+           Layer("landcover_name", false)
+           SetNameAttributes()
+           Attribute("class", natural)
 	end
 
 	-- Set 'landcover' (from landuse, natural, leisure)
@@ -845,8 +849,6 @@ end
 -- Check if there are name tags on the object
 function HasNames()
 	if Holds("name") then return true end
-	local iname
-	local main_written = name
 	if preferred_language and Holds("name:"..preferred_language) then return true end
 	-- then set any additional languages
 	for i,lang in ipairs(additional_languages) do

@@ -16,7 +16,7 @@
 
     "building":          { "minzoom": 13, "maxzoom": 14 },
 
-    "water":             { "minzoom": 6,  "maxzoom": 14, "simplify_below": 12, "simplify_level": 0.0003, "simplify_ratio": 2},
+    "water":             { "minzoom": 6,  "maxzoom": 14, "simplify_below": 12, "simplify_level": 0.00005, "simplify_ratio": 2},
     "water_name":        { "minzoom": 6, "maxzoom": 14 },
     "water_name_detail": { "minzoom": 6,  "maxzoom": 14, "write_to": "water_name" },
     "bays":              { "minzoom": 7,  "maxzoom": 14, "write_to": "water_name" },
