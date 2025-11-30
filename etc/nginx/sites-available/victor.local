@@ -39,7 +39,7 @@ server {
         proxy_read_timeout              5m;
         send_timeout                    5m;
 
-        proxy_cache                     backend_cache;
+        proxy_cache                     tiles_cache;
         proxy_cache_lock                on;
         proxy_cache_revalidate          on;
         proxy_cache_valid               200 204 302 1d;
