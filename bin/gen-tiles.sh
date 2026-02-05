@@ -153,7 +153,7 @@ function download_pbf {
     then
         echo "--- BEGIN osm download of $AREA"
         rm -f $PBF_DEST
-        echo curl -Lsf --output $PBF_DEST $PBF_URL
+        curl -Lsf --output $PBF_DEST $PBF_URL
         echo "--- END osm download of $AREA"
     else
         echo "Not downloading PBF of $AREA: File exists and is recent."
